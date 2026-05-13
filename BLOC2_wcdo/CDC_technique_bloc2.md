@@ -29,7 +29,7 @@
 
 ## 0 MCT
 
-/home/kurdant/Bureau/AcadéNice/Cours/BLOC2_wcdo/MCT_bloc2_wacdo.drawio
+/home/kurdant/Bureau/AcadéNice/Cours/ouii/BLOC2_wcdo/MCT_bloc2_wacdo.drawio
 
 
 ## 1 Dictionnaire des données
@@ -220,14 +220,6 @@ Cette table conserve les choix reels faits dans un menu commande. Exemple : si u
 - Le numéro de retrait correspond au numéro du chevalet remis au client. Il n'est pas généré par le back-office ; il est reçu ou saisi lors de la prise de commande.
 - Une suppression physique est interdite si la donnée est déjà liée à une commande ; la désactivation est privilégiée.
 
-### 1.5 Tables non retenues dans le modèle minimum
-
-- Pas de table `clients` : le back-office ne gère pas les clients finaux.
-- Pas de table `paiements` : le paiement est hors périmètre et géré par le système externe.
-- Pas de table `stocks` : la gestion de stock est explicitement hors périmètre.
-- Pas de table séparée pour `statuts_commande` ou `sources_commande` dans la version simple : des valeurs contrôlées suffisent pour le Bloc 2.
-- Pas de table `sessions` dans le modèle métier : le stockage technique des sessions sera précisé dans la section sécurité si nécessaire.
-
 ## 2 Contexte technique
 
 Le back-office Wacdo est une application web interne developpee from scratch pour repondre aux attendus du Bloc 2. Il doit centraliser la gestion du catalogue, des comptes utilisateurs internes et du cycle de vie des commandes, tout en exposant une API REST au systeme de prise de commande externe.
@@ -292,29 +284,178 @@ Les données reçues par l'API sont validées côté serveur avant toute inserti
 
 Pour la création d'une commande, l'enregistrement de la commande, des lignes, des choix de menu et du total doit être réalisé dans une transaction afin d'éviter une commande partiellement enregistrée.
 
-### 4.4 Organisation indicative des dossiers
+### 4.4 Organisation des dossiers
+
+L'organisation des dossiers du projet est figée comme suit. Toute l'arborescence applicative est placée à la racine du dépôt.
+
+```text
+/public            — racine web Apache (DocumentRoot)
+   index.php       — point d'entrée unique
+   .htaccess       — réécriture vers index.php
+/app
+   /Controllers    — contrôleurs back-office et API
+   /Services       — logique métier (catalogue, commandes, traces)
+   /Repositories   — accès PDO PostgreSQL
+   /Views          — templates HTML du back-office
+   /Core           — routeur, base controller, base repository, helpers
+/config            — configuration (PDO, sessions, constantes)
+/routes
+   web.php         — routes back-office
+   api.php         — routes /api/*
+/storage
+   /uploads        — fichiers téléversés du catalogue
+/database
+   schema.sql
+   seed_dev.sql
+.env.example
+docker-compose.yml
+Dockerfile
+```
+
+Cette organisation est la référence du projet. Les contrôleurs ne contiennent pas de SQL, les vues ne contiennent pas de logique métier, les repositories ne contiennent pas de logique de présentation. Les fichiers téléversés pour le catalogue sont stockés dans `/storage/uploads` et contrôlés côté serveur avant enregistrement.
+
+La gestion des fichiers image est centralisée dans `app/Services/UploadService.php`. Ce service est la seule classe autorisée à manipuler les fichiers uploadés. Il est utilisé par `ProduitService` et `MenuService`, jamais directement par les controllers. Les règles détaillées d'upload sont définies en section 6.5.
+
+### 4.4.1 Détail des vues et assets front
+
+```text
+/app/Views
+   layout.php                    — layout HTML commun à toutes les pages authentifiées
+   /auth
+      login.php                  — page de connexion (sans layout, pleine page)
+   /dashboard
+      index.php                  — tableau de bord (tous rôles)
+   /utilisateurs
+      index.php                  — liste des utilisateurs
+      create.php                 — formulaire de création
+      edit.php                   — formulaire d'édition
+   /categories
+      index.php                  — liste des catégories
+      create.php                 — formulaire de création
+      edit.php                   — formulaire d'édition
+   /produits
+      index.php                  — liste des produits
+      create.php                 — formulaire de création
+      edit.php                   — formulaire d'édition
+   /menus
+      index.php                  — liste des menus
+      create.php                 — formulaire de création
+      edit.php                   — formulaire d'édition
+      sections.php               — gestion des sections et options d'un menu
+   /commandes
+      index.php                  — liste des commandes (filtrée selon le rôle)
+      create.php                 — saisie manuelle d'une commande
+      show.php                   — détail d'une commande
+   /partials
+      header.php                 — barre supérieure (logo, utilisateur, déconnexion)
+      sidebar.php                — navigation latérale (liens filtrés selon le rôle)
+      flash.php                  — messages de retour succès/erreur
+      breadcrumb.php             — fil d'ariane contextuel
+      pagination.php             — composant pagination pour les listes
+```
 
 ```text
 /public
-   index.php
-/app
-   /Controllers
-   /Services
-   /Repositories
-   /Views
-/config
-/routes
-/storage
-   /uploads
+   /css
+      style.css                  — reset, variables CSS, typographie, couleurs
+      layout.css                 — grille : header + sidebar + zone principale
+      components.css             — boutons, formulaires, tableaux, badges de statut, alertes
+      login.css                  — styles spécifiques à la page de connexion
+   /js
+      app.js                     — confirmations avant action destructive, fermeture alertes
+      commandes.js               — rafraîchissement automatique de la liste commandes (30s)
+   /img                          — images statiques (logo, icônes)
 ```
 
-Cette organisation reste indicative. Elle pourra être adaptée pendant le développement, mais elle conserve l'objectif principal : séparer les points d'entrée, les contrôleurs, la logique métier, l'accès aux données et l'affichage.
+Les vues sont des fichiers `.php` dont le rôle se limite à l'affichage : elles reçoivent des variables du contrôleur et produisent du HTML. Elles ne contiennent aucune requête SQL, aucune logique métier et aucun appel de service. Toutes les données affichées sont échappées avec `htmlspecialchars`. Les fichiers CSS et JS sont des fichiers statiques purs, sans PHP. Ils sont liés dans `layout.php` via les balises `<link>` et `<script>`.
 
-Les fichiers envoyés pour le catalogue, par exemple les images de produits ou de menus, sont stockés dans un dossier dédié et contrôlés côté serveur avant leur enregistrement.
+### 4.5 Routes back-office figées
+
+Les routes internes du back-office sont figées ci-dessous. Toutes les routes back-office sont protégées par session sauf `GET /login` et `POST /login`. Les contrôles d'autorisation par rôle sont rappelés dans la colonne **Rôles autorisés**.
+
+**Authentification :**
+
+| Méthode | Route | Contrôleur::action | Rôles autorisés |
+|---|---|---|---|
+| GET | `/login` | `AuthController::showLogin` | Public |
+| POST | `/login` | `AuthController::login` | Public |
+| POST | `/logout` | `AuthController::logout` | Tous authentifiés |
+
+**Tableau de bord :**
+
+| Méthode | Route | Contrôleur::action | Rôles autorisés |
+|---|---|---|---|
+| GET | `/` | `DashboardController::index` | Tous authentifiés |
+
+**Gestion des utilisateurs (Administration uniquement) :**
+
+| Méthode | Route | Contrôleur::action | Rôles autorisés |
+|---|---|---|---|
+| GET | `/utilisateurs` | `UtilisateurController::index` | Administration |
+| GET | `/utilisateurs/creer` | `UtilisateurController::create` | Administration |
+| POST | `/utilisateurs` | `UtilisateurController::store` | Administration |
+| GET | `/utilisateurs/{id}/editer` | `UtilisateurController::edit` | Administration |
+| POST | `/utilisateurs/{id}` | `UtilisateurController::update` | Administration |
+| POST | `/utilisateurs/{id}/desactiver` | `UtilisateurController::desactiver` | Administration |
+
+**Gestion du catalogue — catégories, produits, menus (Administration uniquement) :**
+
+| Méthode | Route | Contrôleur::action | Rôles autorisés |
+|---|---|---|---|
+| GET | `/categories` | `CategorieController::index` | Administration |
+| GET | `/categories/creer` | `CategorieController::create` | Administration |
+| POST | `/categories` | `CategorieController::store` | Administration |
+| GET | `/categories/{id}/editer` | `CategorieController::edit` | Administration |
+| POST | `/categories/{id}` | `CategorieController::update` | Administration |
+| POST | `/categories/{id}/desactiver` | `CategorieController::desactiver` | Administration |
+| GET | `/produits` | `ProduitController::index` | Administration |
+| GET | `/produits/creer` | `ProduitController::create` | Administration |
+| POST | `/produits` | `ProduitController::store` | Administration |
+| GET | `/produits/{id}/editer` | `ProduitController::edit` | Administration |
+| POST | `/produits/{id}` | `ProduitController::update` | Administration |
+| POST | `/produits/{id}/desactiver` | `ProduitController::desactiver` | Administration |
+| GET | `/menus` | `MenuController::index` | Administration |
+| GET | `/menus/creer` | `MenuController::create` | Administration |
+| POST | `/menus` | `MenuController::store` | Administration |
+| GET | `/menus/{id}/editer` | `MenuController::edit` | Administration |
+| POST | `/menus/{id}` | `MenuController::update` | Administration |
+| POST | `/menus/{id}/desactiver` | `MenuController::desactiver` | Administration |
+| GET | `/menus/{id}/sections` | `SectionMenuController::index` | Administration |
+| POST | `/menus/{id}/sections` | `SectionMenuController::store` | Administration |
+| POST | `/sections/{id}/options` | `OptionMenuController::store` | Administration |
+| POST | `/options/{id}/desactiver` | `OptionMenuController::desactiver` | Administration |
+
+**Gestion des commandes :**
+
+| Méthode | Route | Contrôleur::action | Rôles autorisés |
+|---|---|---|---|
+| GET | `/commandes` | `CommandeController::index` | Administration, Preparation, Accueil |
+| GET | `/commandes/creer` | `CommandeController::create` | Administration, Accueil |
+| POST | `/commandes` | `CommandeController::store` | Administration, Accueil |
+| GET | `/commandes/{id}` | `CommandeController::show` | Administration, Preparation, Accueil |
+| POST | `/commandes/{id}/preparee` | `CommandeController::marquerPreparee` | Administration, Preparation |
+| POST | `/commandes/{id}/livree` | `CommandeController::marquerLivree` | Administration, Accueil |
+
+**Endpoints API externes (séparés du back-office, authentification par `X-API-Key`) :**
+
+| Méthode | Route | Contrôleur::action | Authentification |
+|---|---|---|---|
+| GET | `/api/catalogue` | `Api\\CatalogueController::index` | Clé API |
+| POST | `/api/commandes` | `Api\\CommandeController::store` | Clé API |
+
+Toute route absente de ce tableau renvoie une réponse HTTP 404. Toute action soumise par un rôle non autorisé renvoie une réponse HTTP 403.
 
 ## 5 Base de données
 
-/home/kurdant/Bureau/AcadéNice/Cours/BLOC2_wcdo/SCHEMA_BDD_bloc2_wacdo.drawio
+/home/kurdant/Bureau/AcadéNice/Cours/ouii/BLOC2_wcdo/SCHEMA_BDD_bloc2_wacdo.drawio
+
+### 5.1 Mise à jour automatique de `date_modification`
+
+Les tables `utilisateurs`, `produits` et `menus` possèdent un champ `date_modification` destiné à conserver la date du dernier changement d'un enregistrement. PostgreSQL ne met pas ce champ à jour automatiquement lors d'un `UPDATE` : sans mécanisme dédié, le champ resterait `NULL` à chaque modification sauf si chaque requête SQL le renseignait explicitement.
+
+Pour éviter toute omission dans le code applicatif, un trigger `BEFORE UPDATE` est défini dans `schema.sql` sur chacune de ces trois tables. Ce trigger appelle une fonction commune `fn_set_date_modification()` qui force `date_modification = NOW()` avant que la ligne soit écrite.
+
+Résultat : toute requête `UPDATE` sur `utilisateurs`, `produits` ou `menus` met automatiquement à jour `date_modification`, quelle que soit la requête SQL émise par le code PHP. Le code applicatif n'a pas à gérer ce champ.
 
 ## 6 Sécurité applicative
 
@@ -353,9 +494,30 @@ La protection contre la force brute repose sur une limitation des tentatives d'a
 
 L'application limite le nombre de tentatives échouées pour un même identifiant et pour une même adresse IP. Au-delà d'un seuil défini, par exemple 5 échecs sur une période de 15 minutes, l'authentification est temporairement bloquée pendant une durée limitée de 10 à 15 minutes.
 
-Les messages de retour affichés à l'utilisateur restent volontairement génériques, par exemple `identifiants invalides`, afin de ne pas indiquer si l'identifiant saisi existe réellement dans l'application.
+#### 6.3.1 Mécanisme de blocage
 
-Les échecs de connexion et les périodes de blocage sont journalisés côté serveur. Cette journalisation peut être réalisée dans les logs applicatifs ou dans la table `traces_actions` selon le niveau de suivi retenu.
+Les tentatives d'authentification échouées sont enregistrées et suivies selon le flux ci-dessous :
+
+**Stockage des tentatives :**
+- Chaque tentative échouée est enregistrée dans un fichier temporaire côté serveur, identifié par un hash de l'identifiant et l'adresse IP.
+- Le fichier contient : le nombre de tentatives, la date de la première tentative et, si applicable, la date du blocage.
+- Un fichier par combinaison (identifiant, adresse IP) permet de suivre l'historique rapide sans solliciter la base de données.
+
+**Vérification avant authentification :**
+1. À chaque soumission du formulaire de connexion, le contrôleur vérifie d'abord si le compte est bloqué.
+2. Si le nombre de tentatives échouées atteint 5 dans une fenêtre de 15 minutes, le blocage est activé et sa date enregistrée.
+3. Si le blocage est en cours (activé depuis moins de 15 minutes), la requête est immédiatement refusée avec un code HTTP 429 (`Too Many Requests`).
+4. Si la fenêtre de 15 minutes est écoulée depuis le blocage, le compte est automatiquement débloqué et le compteur réinitialisé.
+
+**Enregistrement des tentatives :**
+- Si le compte n'est pas bloqué, l'authentification continue normalement (vérification identifiant et mot de passe en base).
+- Si l'authentification échoue, la tentative est enregistrée et le compteur est incrémenté.
+- À la 5ème tentative échouée, le fichier reçoit la date du blocage ; le compte devient inaccessible immédiatement.
+- Si l'authentification réussit, le fichier de tentatives est supprimé (réinitialisation).
+
+Les messages de retour affichés à l'utilisateur restent volontairement génériques, par exemple `identifiants invalides`, afin de ne pas indiquer si l'identifiant saisi existe réellement dans l'application. Lors d'un blocage en cours, le message est aussi générique : `Trop de tentatives. Réessayez dans 15 minutes.`
+
+Les échecs de connexion et les périodes de blocage peuvent être journalisés côté serveur pour audit. Cette journalisation peut être réalisée dans les logs applicatifs ou dans la table `traces_actions` selon le niveau de suivi retenu.
 
 En complément, lorsqu'un mot de passe saisi ne correspond pas, l'application applique un délai minimal de 3 secondes avant d'autoriser une nouvelle tentative. Cette temporisation fixe constitue une protection de repli si la limite de tentatives venait à être défaillante.
 
@@ -517,6 +679,23 @@ Les contrôles d'autorisation doivent donc empêcher notamment les cas suivants 
 - un utilisateur tente d'accéder à une action interdite en modifiant directement l'URL, le formulaire ou la requête envoyée.
 
 En cas de déconnexion ou de fin de session, une nouvelle authentification est obligatoire. Le rôle est alors relu en base au moment de la reconnexion avant de redonner l'accès aux fonctionnalités autorisées.
+
+### 6.7 Protection CSRF
+
+Toutes les actions du back-office qui modifient des données (création, modification, désactivation, changement de statut) sont protégées contre les attaques de type CSRF (Cross-Site Request Forgery).
+
+**Principe :** Un attaquant pourrait forger une page web externe qui soumet un formulaire vers le back-office Wacdo à l'insu d'un utilisateur connecté. Le navigateur enverrait automatiquement le cookie de session avec la requête, ce qui rendrait l'action légitime aux yeux du serveur sans que l'utilisateur ait rien fait volontairement.
+
+**Mécanisme retenu :**
+- À la création de la session, l'application génère un jeton CSRF aléatoire et le stocke en session (`$_SESSION['csrf_token']`).
+- Ce jeton est inclus dans chaque formulaire HTML modifiant via un champ caché `_csrf`.
+- Avant tout traitement d'une requête POST modifiante, le serveur vérifie que le jeton reçu correspond au jeton stocké en session, en utilisant une comparaison résistante aux attaques temporelles (`hash_equals`).
+- Si le jeton est absent, expiré ou invalide, la requête est rejetée avec un code HTTP 403 sans traitement.
+- Après chaque action POST réussie, le jeton est régénéré afin d'éviter la réutilisation.
+
+**Routes concernées :** toutes les routes `POST` du back-office, soit toutes les routes sauf `GET /login`, `POST /login` (qui précède la session) et les endpoints `/api/*` (qui utilisent la clé API à la place).
+
+**Ce qui n'est pas concerné :** les endpoints `/api/*` n'utilisent pas de formulaires HTML et sont protégés par la clé API `X-API-Key`. Le mécanisme CSRF ne s'applique pas à ces routes.
 
 ## 7 API externe
 
@@ -863,6 +1042,190 @@ En complément de Docker, l'environnement de développement suppose l'usage des 
 - `curl` pour vérifier les endpoints API.
 
 ## 9 Déploiement
+
+### 9.1 Prérequis système
+
+Le déploiement du projet nécessite les composants suivants sur la machine hôte. Aucune installation manuelle de PHP ou de PostgreSQL sur l'hôte n'est requise : tous les services s'exécutent dans des conteneurs Docker.
+
+| Composant | Version minimale | Rôle |
+|---|---|---|
+| Docker Engine | 24.x | Moteur de conteneurisation |
+| Docker Compose | 2.x (plugin intégré) | Orchestration des services `app` et `db` |
+| Git | ≥ 2.34 (présent nativement sur Ubuntu 22.04 LTS et supérieur) | Récupération du code source |
+| `curl` | présent nativement sur toute distribution Linux récente | Vérification des endpoints API après déploiement |
+
+L'installation de PHP, de PostgreSQL ou de leurs extensions sur la machine hôte n'est pas requise. Ces dépendances sont encapsulées dans les images Docker définies dans `docker-compose.yml`.
+
+### 9.2 Contenu des images Docker
+
+Le service `app` repose sur l'image `php:8.2-apache`. Les éléments suivants sont configurés dans le `Dockerfile` du projet :
+
+**Extensions PHP installées :**
+
+| Extension | Type | Rôle |
+|---|---|---|
+| `pdo` | native | Interface abstraite d'accès aux bases de données depuis PHP |
+| `pdo_pgsql` | à installer | Driver PDO pour PostgreSQL |
+| `fileinfo` | à installer | Détection du type MIME réel des fichiers téléversés |
+| `session` | native | Gestion des sessions PHP — vérifier que le répertoire de session est accessible en écriture par `www-data` |
+
+Les extensions `pdo_pgsql` et `fileinfo` sont installées via `docker-php-ext-install`. L'application ne démarre pas correctement si elles sont absentes.
+
+**Configuration Apache :**
+
+- `mod_rewrite` est activé via `a2enmod rewrite` dans le `Dockerfile`. Sans cette activation, le routeur MVC ne fonctionne pas : toutes les URL renvoient 404.
+- Le `DocumentRoot` est configuré sur `/var/www/html/public`. Apache ne sert pas la racine du projet afin d'éviter d'exposer le code source, les fichiers de configuration et le répertoire `database/`.
+- La directive `AllowOverride All` est activée sur le répertoire `public` afin que le fichier `.htaccess` du routeur soit pris en compte.
+- Le répertoire `storage/uploads` est hors du `DocumentRoot`. Un fichier `.htaccess` dans ce répertoire interdit l'exécution PHP et l'indexage : `php_admin_flag engine off` et `Options -Indexes`.
+
+**Répertoire d'uploads :**
+
+Le répertoire `storage/uploads` (chemin interne : `/var/www/html/storage/uploads`) est créé dans le `Dockerfile` avec les permissions `www-data`. Il est monté via un volume nommé `uploads_data` dans Docker Compose afin que les fichiers téléversés soient conservés entre les redémarrages des conteneurs.
+
+**Service `db` :**
+
+Le service `db` repose sur l'image officielle `postgres:16`. L'image est configurée avec la locale `en_US.UTF-8` par défaut. Le projet n'impose pas de collation spécifique. Les variables d'environnement du conteneur `db` sont déclarées dans `docker-compose.yml` :
+
+| Variable Docker | Valeur | Rôle |
+|---|---|---|
+| `POSTGRES_DB` | `wacdo_dev` | Base de données créée au premier démarrage |
+| `POSTGRES_USER` | `wacdo` | Compte PostgreSQL créé automatiquement |
+| `POSTGRES_PASSWORD` | mappé depuis `DB_PASSWORD` | Mot de passe du compte — obligatoire, le conteneur refuse de démarrer sans cette variable |
+
+Ces variables sont distinctes des variables `DB_*` utilisées côté application PHP. Elles sont déclarées dans `docker-compose.yml` et leur valeur est lue depuis le fichier `.env`.
+
+### 9.3 Procédure de déploiement
+
+La procédure complète de premier déploiement est la suivante. Elle s'applique aussi bien en environnement local que sur un serveur Linux.
+
+Les scripts SQL (`schema.sql` et `seed_dev.sql`) sont montés dans le conteneur `db` sous le répertoire `/scripts` via Docker Compose. L'initialisation est déclenchée manuellement avec `docker compose exec` pour rester explicite et reproductible.
+
+**Étape 1 — Récupérer le code source**
+
+```bash
+git clone <url-du-depot> wacdo
+cd wacdo
+```
+
+**Étape 2 — Configurer les variables d'environnement**
+
+```bash
+cp .env.example .env
+```
+
+Éditer le fichier `.env` et renseigner les valeurs réelles pour `DB_PASSWORD` et `API_KEY`. Toutes les autres variables sont préremplies avec des valeurs fonctionnelles pour un environnement local. Le fichier `.env` est déclaré dans `.gitignore` et ne doit jamais être versionné.
+
+**Étape 3 — Démarrer les conteneurs**
+
+```bash
+docker compose up -d --build
+```
+
+Cette commande construit l'image `app`, démarre le service `db` (PostgreSQL 16) et expose le back-office sur le port défini par `APP_PORT` dans `.env` (valeur par défaut : `8080`).
+
+**Étape 4 — Attendre que PostgreSQL soit prêt**
+
+```bash
+docker compose exec db pg_isready -U wacdo -d wacdo_dev
+```
+
+Relancer cette commande jusqu'à obtenir la réponse `accepting connections`. PostgreSQL démarre quelques secondes après le conteneur ; toute commande `exec psql` lancée avant que le moteur soit prêt échoue avec `connection refused`.
+
+**Étape 5 — Initialiser la base de données**
+
+L'initialisation s'effectue en deux étapes dans cet ordre strict :
+
+```bash
+# 1. Création du schéma (11 tables, contraintes, index)
+docker compose exec db psql -U wacdo -d wacdo_dev -f /scripts/schema.sql
+
+# 2. Chargement des données initiales (rôles, compte administrateur, catalogue de test)
+docker compose exec db psql -U wacdo -d wacdo_dev -f /scripts/seed_dev.sql
+```
+
+Le script `schema.sql` crée les 11 tables avec toutes leurs contraintes et leurs index. Le script `seed_dev.sql` charge les données minimales nécessaires au fonctionnement du back-office : les trois rôles, un compte administrateur de développement et un jeu de données catalogue pour tester les endpoints. Ces deux fichiers sont versionnés dans `database/` et montés dans `/scripts` du conteneur `db` via Docker Compose.
+
+**Étape 6 — Vérifier le démarrage**
+
+```bash
+# Vérifier l'état des conteneurs
+docker compose ps
+
+# Consulter les journaux applicatifs (interruptible avec Ctrl+C)
+docker compose logs app
+```
+
+Le service est opérationnel lorsque `docker compose ps` affiche les services `app` et `db` avec l'état `running`. Aucune erreur PDO ou d'extension manquante ne doit apparaître dans les journaux.
+
+### 9.4 Réinitialisation de la base
+
+Pour repartir d'une base vide (après une modification du schéma ou un jeu de données corrompu) :
+
+```bash
+docker compose down -v
+docker compose up -d
+
+# Attendre que PostgreSQL soit prêt
+docker compose exec db pg_isready -U wacdo -d wacdo_dev
+
+# Réinitialiser le schéma et les données
+docker compose exec db psql -U wacdo -d wacdo_dev -f /scripts/schema.sql
+docker compose exec db psql -U wacdo -d wacdo_dev -f /scripts/seed_dev.sql
+```
+
+L'option `-v` supprime le volume PostgreSQL. Cette opération est irréversible sur les données locales.
+
+### 9.5 Mise à jour du schéma
+
+Toute modification du schéma de base de données en cours de développement est appliquée par la procédure complète de réinitialisation décrite en section 9.4. Aucune migration incrémentale n'est mise en place dans le périmètre du Bloc 2. La base est systématiquement recréée à partir des scripts versionnés.
+
+### 9.6 Variables d'environnement de déploiement
+
+**Variables côté application PHP (service `app`) :**
+
+| Variable | Valeur attendue | Obligatoire |
+|---|---|---|
+| `APP_ENV` | `dev` (local) ou `prod` (serveur) | Oui |
+| `APP_URL` | URL complète d'accès au back-office incluant le port si non-standard (ex. `http://localhost:8080`) | Oui |
+| `APP_PORT` | Port HTTP exposé sur la machine hôte par Docker Compose — Apache écoute en interne sur le port `80` ; cette variable pilote uniquement le mapping Docker (`8080:80`) | Oui |
+| `APP_DEBUG` | `false` obligatoire en production | Oui |
+| `DB_HOST` | `db` (nom du service Docker, pas `localhost`) | Oui |
+| `DB_PORT` | `5432` | Oui |
+| `DB_NAME` | `wacdo_dev` | Oui |
+| `DB_USER` | `wacdo` | Oui |
+| `DB_PASSWORD` | secret non versionné | Oui |
+| `API_KEY` | clé partagée avec le système externe | Oui |
+| `UPLOAD_DIR` | `/var/www/html/storage/uploads` | Oui |
+
+**Variables côté conteneur PostgreSQL (service `db`, déclarées dans `docker-compose.yml`) :**
+
+| Variable Docker | Valeur | Obligatoire |
+|---|---|---|
+| `POSTGRES_DB` | `wacdo_dev` | Oui — le conteneur ne crée pas de base sans cette variable |
+| `POSTGRES_USER` | `wacdo` | Oui |
+| `POSTGRES_PASSWORD` | mappé depuis `DB_PASSWORD` du `.env` | Oui — le conteneur refuse de démarrer sans mot de passe |
+
+Le fichier `.env` est déclaré dans `.gitignore` à la racine du projet et ne doit jamais être versionné. Le fichier `.env.example` est versionné avec des valeurs factices et sert de référence pour chaque nouveau poste.
+
+### 9.7 Contrôle post-déploiement
+
+Après chaque déploiement, les vérifications minimales suivantes sont effectuées :
+
+```bash
+# Vérifier que les 11 tables existent
+docker compose exec db psql -U wacdo -d wacdo_dev -c "\dt"
+
+# Vérifier que les 3 rôles sont chargés
+docker compose exec db psql -U wacdo -d wacdo_dev -c "SELECT libelle FROM roles;"
+
+# Vérifier que le back-office répond (adapter le port si APP_PORT != 8080)
+curl -s -o /dev/null -w "%{http_code}" http://localhost:${APP_PORT:-8080}
+
+# Vérifier que l'API répond avec une clé valide
+curl -s -H "X-API-Key: <api_key>" http://localhost:${APP_PORT:-8080}/api/catalogue
+```
+
+Le déploiement est considéré comme valide lorsque les 11 tables sont présentes, les 3 rôles sont chargés et le back-office répond avec un code HTTP 200.
 
 ## 10 Tests et validation technique
 

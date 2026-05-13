@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Saisie du numéro de retrait Wacdo">
+  <title>Wacdo - Numéro de retrait</title>
+  <link rel="stylesheet" href="../CSS/pages/chevalet.css">
+  <script type="module" src="../JS/chevalet.js"></script>
+</head>
+<body>
+  <main class="withdraw-shell" aria-labelledby="withdraw-title">
+    <img class="table-marker" src="../Json_donnees/wacdo/images/illustration-sur-place.png" alt="Wacdo">
+    <section class="withdraw-panel">
+      <h1 id="withdraw-title">Pour être servis à table,</h1>
+      <p>Récupérez un chevalet et indiquez ici le numéro inscrit dessus</p>
+
+      <form id="withdraw-form" novalidate>
+        <fieldset class="digits-fieldset">
+          <legend>Numéro de retrait</legend>
+          <div class="digits-row">
+            <input class="digit-input" id="digit-1" name="digit-1" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Premier chiffre">
+            <input class="digit-input" id="digit-2" name="digit-2" type="text" inputmode="numeric" maxlength="1" aria-label="Deuxième chiffre">
+            <input class="digit-input" id="digit-3" name="digit-3" type="text" inputmode="numeric" maxlength="1" aria-label="Troisième chiffre">
+          </div>
+        </fieldset>
+        <p class="form-message" id="withdraw-message" role="alert"></p>
+        <button class="primary-button" id="submit-withdraw" type="submit">Enregistrer le numéro</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

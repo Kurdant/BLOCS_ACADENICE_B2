@@ -62,23 +62,23 @@
         <mxCell id="constraints" value="&lt;b&gt;Contraintes principales visibles&lt;/b&gt;&lt;hr&gt;CHECK valeurs controlees : source ('api','back_office'), type_service ('sur_place','a_emporter'), statut ('a_preparer','preparee','livree'), type_ligne ('produit','menu').&lt;br&gt;XOR lignes_commande : une ligne reference soit un produit, soit un menu, jamais les deux.&lt;br&gt;Prix, supplements et totaux &amp;gt;= 0 ; quantite &amp;gt; 0 ; quantite_min &amp;gt;= 0 ; quantite_max &amp;gt;= quantite_min.&lt;br&gt;numero_retrait : numero du chevalet, non genere par la BDD.&lt;br&gt;source = api =&amp;gt; auteur NULL ; source = back_office =&amp;gt; auteur requis.&lt;br&gt;Suppression physique evitee : actif/disponible pour desactivation ou archivage.&lt;br&gt;Modele volontairement simple : pas de clients, paiements, stocks, sessions, tables statuts_commande ou sources_commande." style="shape=note;whiteSpace=wrap;html=1;size=18;verticalAlign=top;align=left;spacingTop=8;spacingLeft=10;fillColor=#fff8cc;strokeColor=#c7a329;fontFamily=Helvetica;fontSize=12;fontColor=#172033;" vertex="1" parent="1">
           <mxGeometry x="440" y="1140" width="1380" height="210" as="geometry"/>
         </mxCell>
-        <mxCell id="legend" value="&lt;b&gt;Legende&lt;/b&gt;&lt;br&gt;PK = cle primaire&lt;br&gt;FK = cle etrangere&lt;br&gt;NULL = reference optionnelle&lt;br&gt;1,N / 0,N = cardinalite cote parent" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" vertex="1" parent="1">
+        <mxCell id="legend" value="&lt;b&gt;Legende&lt;/b&gt;&lt;br&gt;PK = cle primaire&lt;br&gt;FK = cle etrangere&lt;br&gt;NULL = reference optionnelle&lt;br&gt;0,N / 1,N = cardinalite cote parent&lt;br&gt;Un seul trait par FK : pas de doublon pour la relation inverse" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" vertex="1" parent="1">
           <mxGeometry x="70" y="1085" width="300" height="120" as="geometry"/>
         </mxCell>
 
-        <mxCell id="edge_roles_utilisateurs" value="roles 1,N - utilisateurs" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="roles" target="utilisateurs">
+        <mxCell id="edge_roles_utilisateurs" value="roles 0,N - utilisateurs" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="roles" target="utilisateurs">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_categories_produits" value="categories 1,N - produits" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="categories" target="produits">
+        <mxCell id="edge_categories_produits" value="categories 0,N - produits" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="categories" target="produits">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_menus_sections" value="menus 1,N - sections_menu" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="menus" target="sections_menu">
+        <mxCell id="edge_menus_sections" value="menus 0,N - sections_menu" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="menus" target="sections_menu">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_sections_options" value="sections_menu 1,N - options_menu" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="sections_menu" target="options_menu">
+        <mxCell id="edge_sections_options" value="sections_menu 0,N - options_menu" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="sections_menu" target="options_menu">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_produits_options" value="produits 1,N - options_menu" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="produits" target="options_menu">
+        <mxCell id="edge_produits_options" value="produits 0,N - options_menu" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="produits" target="options_menu">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="820" y="665"/>
@@ -95,7 +95,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="edge_commandes_lignes" value="commandes 1,N - lignes_commande" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="commandes" target="lignes_commande">
+        <mxCell id="edge_commandes_lignes" value="commandes 0,N - lignes_commande" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="commandes" target="lignes_commande">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
         <mxCell id="edge_produits_lignes" value="produits 0,N - lignes_commande (FK nullable)" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#64748b;strokeWidth=1.2;dashed=1;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#475569;" edge="1" parent="1" source="produits" target="lignes_commande">
@@ -116,7 +116,7 @@
         <mxCell id="edge_lignes_choix" value="lignes_commande 0,N - choix_ligne_commande" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="lignes_commande" target="choix_ligne_commande">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
-        <mxCell id="edge_produits_choix" value="produits 1,N - choix_ligne_commande" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="produits" target="choix_ligne_commande">
+        <mxCell id="edge_produits_choix" value="produits 0,N - choix_ligne_commande" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#334155;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#334155;" edge="1" parent="1" source="produits" target="choix_ligne_commande">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="820" y="725"/>

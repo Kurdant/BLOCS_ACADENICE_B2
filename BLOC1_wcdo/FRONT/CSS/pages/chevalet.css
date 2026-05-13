@@ -1,0 +1,156 @@
+:root {
+  --brand-yellow: #ffc72c;
+  --brand-red: #c4161c;
+  --ink: #121212;
+  --muted: #5c5c5c;
+  --panel: #ffffff;
+  --danger: #b00020;
+  --focus: #005fcc;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f7f7f4 url("../../Json_donnees/wacdo/images/mc_landing_banner.png") center top / cover no-repeat;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.withdraw-shell {
+  min-height: 100vh;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 36px;
+  padding: 36px 18px;
+}
+
+.table-marker {
+  width: 170px;
+  height: 170px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.withdraw-panel {
+  width: min(980px, 100%);
+  padding: clamp(26px, 5vw, 56px);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+h1 {
+  margin: 0 0 20px;
+  font-size: clamp(1.5rem, 3.5vw, 2.6rem);
+  line-height: 1.1;
+}
+
+p {
+  margin: 0 0 20px;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.digits-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.digits-fieldset legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.digits-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 4vw, 36px);
+}
+
+.digit-input {
+  width: 100%;
+  height: clamp(110px, 18vw, 190px);
+  border: 0;
+  border-bottom: 12px solid #d8d8d8;
+  background: #fff;
+  color: #000;
+  font-size: clamp(4.4rem, 14vw, 8rem);
+  font-weight: 900;
+  text-align: center;
+}
+
+.form-message {
+  min-height: 34px;
+  margin: 24px 0;
+  color: var(--danger);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.primary-button {
+  display: block;
+  min-width: min(360px, 100%);
+  min-height: 68px;
+  margin: 12px auto 0;
+  padding: 16px 28px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brand-yellow);
+  color: #111;
+  font-size: clamp(1.1rem, 3vw, 1.55rem);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #ffb800;
+}
+
+.primary-button:disabled {
+  cursor: wait;
+  background: #d8d8d8;
+}
+
+@media (max-width: 620px) {
+  .withdraw-shell {
+    align-content: start;
+    padding-top: 24px;
+  }
+
+  .table-marker {
+    width: 110px;
+    height: 110px;
+  }
+
+  .withdraw-panel {
+    padding: 24px 18px;
+  }
+}

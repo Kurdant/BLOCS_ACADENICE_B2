@@ -6,7 +6,7 @@ Wacdo est une enseigne de restauration rapide dont l'activité repose sur un sys
 
 Dans le cadre du développement d'une nouvelle application back-office, Wacdo commande la conception et le développement d'un système centralisé destiné à structurer la gestion opérationnelle de l'établissement. L'application existante ne permet pas de gérer de façon cohérente et sécurisée l'ensemble des données du catalogue, le traitement des commandes en temps réel et les accès différenciés du personnel.
 
-Le back-office est une application web à usage exclusivement interne. Il centralise la gestion du catalogue de produits et de menus, le traitement opérationnel des commandes et la gestion des accès du personnel. L'accès est restreint aux utilisateurs authentifiés. Les droits sont organisés par rôle : **Administration**, **Préparation** et **Accueil**.
+Le back-office est une application web à usage exclusivement interne. Il centralise la gestion du catalogue de produits et de menus, le traitement opérationnel des commandes et la gestion des accès du personnel. L'accès est restreint aux utilisateurs authentifiés. Les droits sont organisés par rôle : **Administration**, **Preparation** et **Accueil**.
 
 L'API REST exposée par le back-office constitue le point d'intégration avec le système de prise de commande externe : elle publie le catalogue commandable et reçoit les commandes validées. Les commandes — qu'elles soient reçues par API ou saisies manuellement par le rôle Accueil — suivent le même cycle opérationnel unifié : `à préparer` → `préparée` → `livrée`.
 
@@ -32,7 +32,7 @@ Le back-office doit permettre :
 Le système intègre une gestion complète des comptes utilisateurs internes, avec prise en compte des autorisations par rôle. Trois rôles sont définis, couvrant l'ensemble des responsabilités opérationnelles de l'établissement :
 
 - Le rôle **Administration** dispose d'un accès complet au back-office. Son rôle principal est d'administrer l'établissement dans l'application : gestion des données du catalogue, des menus et de leurs compositions, ainsi que création, modification et désactivation des comptes utilisateurs internes. En raison de son niveau d'autorisation, il peut également réaliser les autres actions du back-office lorsque nécessaire.
-- Le rôle **Préparation** est dédié au personnel en cuisine : consultation de la liste des commandes à traiter et déclaration des commandes comme préparées, permettant leur remise au client.
+- Le rôle **Preparation** est dédié au personnel en cuisine : consultation de la liste des commandes à traiter et déclaration des commandes comme préparées, permettant leur remise au client.
 - Le rôle **Accueil** est dédié au personnel en salle et au centre d'appel : saisie de commandes au comptoir ou par téléphone, et remise des commandes préparées aux clients avec passage au statut `livrée`.
 
 Aucune fonctionnalité du back-office n'est accessible sans authentification. Les droits de chaque action sont vérifiés côté serveur selon le rôle de l'utilisateur connecté.
@@ -43,8 +43,8 @@ Le back-office permet aux utilisateurs disposant du rôle Administration de gér
 **Saisie et traitement des commandes**
 La saisie manuelle des commandes depuis le back-office est principalement assurée par le rôle Accueil — au comptoir ou lors d'une prise de commande par téléphone — en sélectionnant les produits, menus, quantités et options. Un administrateur peut également l'effectuer en raison de son accès complet. Les mêmes règles de validation et de calcul s'appliquent quelle que soit la source de la commande. Le rôle Accueil peut également identifier une commande préparée par son numéro de retrait et la déclarer `livrée` lors de la remise au client.
 
-**Préparation des commandes**
-Le personnel chargé de la confection des commandes accède via le rôle Préparation à la liste des commandes au statut `à préparer`, triées par heure de retrait prévue croissante. Une fois une commande confectionnée, le préparateur la déclare `préparée`, ce qui la rend disponible pour remise par le rôle Accueil.
+**Preparation des commandes**
+Le personnel chargé de la confection des commandes accède via le rôle Preparation à la liste des commandes au statut `à préparer`, triées par heure de retrait prévue croissante. Une fois une commande confectionnée, le préparateur la déclare `préparée`, ce qui la rend disponible pour remise par le rôle Accueil.
 
 **Sécurité applicative**
 L'application met en œuvre les mesures de sécurité nécessaires à la protection des données internes : authentification des utilisateurs avec sessions sécurisées côté serveur, contrôle des autorisations à chaque action protégée, validation systématique des données reçues, protection des mots de passe et des données sensibles. Les mesures de sécurité techniques (algorithmes, configuration des sessions, protection contre la force brute, contrôle des fichiers) sont détaillées dans le CDC technique.
@@ -75,7 +75,7 @@ Création, modification et désactivation des comptes utilisateurs internes, ave
 Réception des commandes transmises par le système externe via l'API, et saisie manuelle de commandes depuis le back-office, principalement par le rôle Accueil (au comptoir ou par téléphone). Dans les deux cas, la commande est validée côté serveur, son total est calculé depuis le catalogue actif, et elle entre dans le cycle opérationnel au statut `à préparer`.
 
 **Traitement des commandes — préparation**
-Accès du rôle Préparation à la liste des commandes au statut `à préparer`, triées par heure de retrait prévue croissante. Déclaration d'une commande `préparée` une fois confectionnée.
+Accès du rôle Preparation à la liste des commandes au statut `à préparer`, triées par heure de retrait prévue croissante. Déclaration d'une commande `préparée` une fois confectionnée.
 
 **Traitement des commandes — remise client**
 Identification d'une commande par son numéro de retrait et déclaration `livrée` lors de la remise au client, par le rôle Accueil.
@@ -126,7 +126,7 @@ La suppression physique d'un élément du catalogue déjà référencé dans une
 
 ---
 
-### 4.2 Utilisateur interne — rôle Préparation
+### 4.2 Utilisateur interne — rôle Preparation
 
 Le préparateur est l'acteur opérationnel chargé de la confection des commandes en cuisine. Son périmètre d'accès est restreint aux seules informations nécessaires à l'exécution de cette mission.
 
@@ -139,7 +139,7 @@ Le préparateur est l'acteur opérationnel chargé de la confection des commande
 Le préparateur accède au back-office via un navigateur web depuis le poste de cuisine. Il s'authentifie pour accéder à sa vue dédiée. Sa session ne lui donne accès ni aux données du catalogue, ni aux comptes, ni aux fonctionnalités d'accueil.
 
 **Contraintes :**
-Le rôle Préparation ne peut pas remettre une commande au client, modifier des données du catalogue, ni créer ou supprimer des comptes. La déclaration `préparée` n'est possible que sur une commande au statut `à préparer`.
+Le rôle Preparation ne peut pas remettre une commande au client, modifier des données du catalogue, ni créer ou supprimer des comptes. La déclaration `préparée` n'est possible que sur une commande au statut `à préparer`.
 
 ---
 
@@ -180,7 +180,7 @@ Toute commande incohérente (sans numéro de retrait, sans ligne, avec produit i
 | Acteur | Type | Authentification | Domaines d'action |
 |---|---|---|---|
 | Administration | Interne | Session utilisateur | Accès complet au back-office : catalogue, comptes, disponibilités, saisie et traitement des commandes |
-| Préparation | Interne | Session utilisateur | Consultation et traitement des commandes à préparer |
+| Preparation | Interne | Session utilisateur | Consultation et traitement des commandes à préparer |
 | Accueil | Interne | Session utilisateur | Saisie de commandes, remise client |
 | Système externe | Applicatif | Endpoints publics API | Lecture catalogue, soumission de commandes |
 
@@ -188,13 +188,13 @@ Toute commande incohérente (sans numéro de retrait, sans ligne, avec produit i
 
 **Utilisateur** = compte interne de l'application back-office, identifié par un identifiant et un mot de passe, associé à un rôle déterminant ses droits d'accès. Un utilisateur interne n'est pas un client de la borne.
 
-**Rôle** = niveau d'autorisation attribué à un utilisateur interne, définissant les actions qu'il est autorisé à effectuer dans le back-office. Trois rôles existent : Administration, Accueil et Préparation.
+**Rôle** = niveau d'autorisation attribué à un utilisateur interne, définissant les actions qu'il est autorisé à effectuer dans le back-office. Trois rôles existent : Administration, Accueil et Preparation.
 
 **Administration** = rôle permettant la gestion complète des données de l'application (produits, menus, catégories) ainsi que la gestion des comptes utilisateurs internes.
 
 **Accueil** = rôle permettant la saisie manuelle d'une commande (au comptoir ou par téléphone) et la remise d'une commande préparée à un client.
 
-**Préparation** = rôle permettant la consultation de la liste des commandes à préparer et la déclaration d'une commande comme préparée.
+**Preparation** = rôle permettant la consultation de la liste des commandes à préparer et la déclaration d'une commande comme préparée.
 
 **Produit** = élément du catalogue géré en back-office, identifié, nommé, décrit, tarifé, rattaché à une catégorie, associé à une image et doté d'un indicateur de disponibilité.
 
@@ -238,7 +238,7 @@ Chaque utilisateur interne doit être rattaché à un et un seul rôle.
 
 RG-USER-004 — Les rôles disponibles sont limités
 
-Le back-office distingue trois rôles : Administration, Préparation et Accueil.
+Le back-office distingue trois rôles : Administration, Preparation et Accueil.
 
 RG-USER-005 — Seul un administrateur peut gérer les utilisateurs
 
@@ -272,13 +272,13 @@ Un utilisateur ayant le rôle Administration peut créer, modifier ou désactive
 
 RG-ADM-004 — L'administration peut accéder à toutes les fonctionnalités internes du back-office
 
-Un utilisateur ayant le rôle Administration peut également réaliser les actions opérationnelles normalement utilisées par les rôles Préparation et Accueil.
+Un utilisateur ayant le rôle Administration peut également réaliser les actions opérationnelles normalement utilisées par les rôles Preparation et Accueil.
 
-### Rôle Préparation
+### Rôle Preparation
 
 RG-PREP-001 — La préparation consulte les commandes à préparer
 
-Un utilisateur ayant le rôle Préparation peut consulter la liste des commandes qui doivent être préparées.
+Un utilisateur ayant le rôle Preparation peut consulter la liste des commandes qui doivent être préparées.
 
 RG-PREP-002 — Les commandes à préparer sont triées par heure de retrait prévue croissante
 
@@ -286,15 +286,15 @@ La liste des commandes à préparer doit afficher en priorité les commandes don
 
 RG-PREP-003 — La préparation peut déclarer une commande préparée
 
-Un utilisateur ayant le rôle Préparation peut changer le statut d'une commande lorsque sa préparation est terminée.
+Un utilisateur ayant le rôle Preparation peut changer le statut d'une commande lorsque sa préparation est terminée.
 
 RG-PREP-004 — La préparation ne remet pas une commande au client
 
-La remise d'une commande au client relève du rôle Accueil, pas du rôle Préparation.
+La remise d'une commande au client relève du rôle Accueil, pas du rôle Preparation.
 
 RG-PREP-005 — La préparation ne gère pas le catalogue
 
-Un utilisateur ayant le rôle Préparation ne peut pas créer, modifier ou supprimer les produits, les menus, les catégories ou les utilisateurs.
+Un utilisateur ayant le rôle Preparation ne peut pas créer, modifier ou supprimer les produits, les menus, les catégories ou les utilisateurs.
 
 ### Rôle Accueil
 
@@ -446,7 +446,7 @@ Lorsqu'une commande est enregistrée, elle reçoit le statut `à préparer` et e
 
 RG-CMD-007 — La préparation et l'administration peuvent déclarer une commande préparée
 
-Un utilisateur Préparation ou Administration peut faire passer une commande du statut `à préparer` au statut `préparée`.
+Un utilisateur Preparation ou Administration peut faire passer une commande du statut `à préparer` au statut `préparée`.
 
 RG-CMD-008 — L'accueil et l'administration peuvent déclarer une commande livrée
 
@@ -462,7 +462,7 @@ Toute transition sautée, inverse ou non autorisée doit être refusée.
 
 RG-CMD-011 — Les commandes à préparer doivent être consultables par les préparateurs
 
-Les utilisateurs Préparation doivent accéder aux informations nécessaires à la confection des commandes.
+Les utilisateurs Preparation doivent accéder aux informations nécessaires à la confection des commandes.
 
 RG-CMD-012 — Les commandes préparées doivent être consultables par l'accueil
 
@@ -592,7 +592,7 @@ Les images associées aux produits ou menus doivent être validées avant enregi
 
 ## 7 Parcours utilisateurs
 
-Les parcours utilisateurs décrivent l'utilisation du back-office par les trois rôles internes prévus dans le sujet : Administration, Préparation et Accueil.
+Les parcours utilisateurs décrivent l'utilisation du back-office par les trois rôles internes prévus dans le sujet : Administration, Preparation et Accueil.
 
 Chaque parcours commence par une authentification, car le back-office ne doit pas être accessible à un utilisateur non connecté.
 
@@ -672,13 +672,13 @@ PU-ADM-011 — Déconnexion
 
 L'administrateur peut se déconnecter. La session est fermée et l'accès aux pages protégées redevient impossible sans nouvelle authentification.
 
-### Parcours Préparation
+### Parcours Preparation
 
-**Acteur principal** : utilisateur ayant le rôle Préparation.
+**Acteur principal** : utilisateur ayant le rôle Preparation.
 
 **Objectif** : consulter les commandes à préparer et déclarer une commande préparée.
 
-**Précondition** : l'utilisateur possède un compte actif avec le rôle Préparation.
+**Précondition** : l'utilisateur possède un compte actif avec le rôle Preparation.
 
 PU-PREP-001 — Accès au back-office
 
@@ -700,7 +700,7 @@ PU-PREP-005 — Consultation du détail d'une commande
 
 Le préparateur ouvre une commande pour consulter les lignes, les produits, les menus, les options et les informations utiles à la confection.
 
-PU-PREP-006 — Préparation physique de la commande
+PU-PREP-006 — Preparation physique de la commande
 
 Le préparateur réalise la commande à partir des informations affichées dans le back-office.
 
@@ -746,7 +746,7 @@ Avant enregistrement, l'application vérifie que la commande contient au moins u
 
 PU-ACC-006 — Enregistrement de la commande
 
-Si la commande est valide, elle est enregistrée avec le statut `à préparer`, la création est tracée et la commande devient visible par les utilisateurs Préparation.
+Si la commande est valide, elle est enregistrée avec le statut `à préparer`, la création est tracée et la commande devient visible par les utilisateurs Preparation.
 
 PU-ACC-007 — Consultation des commandes préparées
 
@@ -774,7 +774,7 @@ Une matrice des droits est un tableau qui croise les fonctionnalités de l'appli
 
 Par défaut, une action est considérée comme refusée si elle n'est pas explicitement autorisée.
 
-| Fonctionnalité | Administration | Préparation | Accueil |
+| Fonctionnalité | Administration | Preparation | Accueil |
 |---|---|---|---|
 | Accéder au back-office | Oui | Oui | Oui |
 | S'authentifier et se déconnecter | Oui | Oui | Oui |
@@ -811,7 +811,7 @@ Les exigences fonctionnelles synthétisent, par domaine, ce que l'application do
 | ID | L'application doit… | RG de référence |
 |---|---|---|
 | EF-USR-001 | Permettre à l'Administration de créer, modifier et désactiver les comptes internes | `RG-ADM-003`, `RG-USER-005` |
-| EF-USR-002 | Associer à chaque utilisateur un et un seul rôle parmi Administration, Préparation et Accueil | `RG-USER-003`, `RG-USER-004` |
+| EF-USR-002 | Associer à chaque utilisateur un et un seul rôle parmi Administration, Preparation et Accueil | `RG-USER-003`, `RG-USER-004` |
 | EF-USR-003 | Vérifier côté serveur les droits du rôle connecté avant chaque action protégée | `RG-SEC-004`, `RG-USER-008` |
 | EF-USR-004 | Permettre à tout utilisateur connecté de modifier son propre mot de passe | `RG-SEC-002` |
 
@@ -888,7 +888,7 @@ Les contraintes non fonctionnelles définissent les exigences de qualité, d'arc
 
 ## 11 MCD 
 
-/home/kurdant/Bureau/AcadéNice/Cours/BLOC2_wcdo/MCD_bloc2_wacdo.drawio
+/home/kurdant/Bureau/AcadéNice/Cours/ouii/BLOC2_wcdo/MCD_bloc2_wacdo.drawio
 
 ## 12 Livrables attendus
 

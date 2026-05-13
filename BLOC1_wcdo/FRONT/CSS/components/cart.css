@@ -1,0 +1,218 @@
+/* ─── Panneau panier fixe à droite ─────────────────────── */
+
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: var(--cart-width, 340px);
+  height: 100vh;
+  background: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── En-tête panier ────────────────────────────────────── */
+
+.cart-header {
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.cart-header-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.cart-logo {
+  width: 44px;
+  height: auto;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cart-order-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex: 1;
+  gap: 8px;
+}
+
+.cart-order-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cart-order-number {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.cart-order-type {
+  margin: 0;
+  padding-left: 58px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+/* ─── Lignes de panier (scrollable) ────────────────────── */
+
+.cart-lines {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cart-empty {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.cart-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cart-line-info h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.cart-line-details {
+  margin: 0 0 6px;
+  padding: 0 0 0 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.cart-line-details li {
+  margin: 0;
+}
+
+.cart-line-info strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.remove-line {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 6px;
+  background: #f4f4f0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: start;
+}
+
+.remove-line:hover {
+  background: #ffe2e4;
+}
+
+.remove-line img {
+  width: 18px;
+  height: 18px;
+}
+
+/* ─── Pied du panier : total + boutons ─────────────────── */
+
+.cart-footer {
+  border-top: 2px solid var(--line);
+  padding: 16px 18px 18px;
+  flex-shrink: 0;
+}
+
+.cart-error {
+  min-height: 20px;
+  margin: 0 0 8px;
+  color: var(--danger);
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+.cart-total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cart-total-row strong {
+  color: var(--ink);
+  font-size: 1.4rem;
+}
+
+.cart-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-abandon {
+  height: 52px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-abandon:hover {
+  background: #f0f0f0;
+}
+
+.btn-payer {
+  height: 52px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brand-yellow);
+  color: #111;
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-payer:hover:not(:disabled) {
+  background: #ffb800;
+}
+
+.btn-payer:disabled {
+  background: #d4d4d4;
+  color: #6f6f6f;
+  cursor: not-allowed;
+}

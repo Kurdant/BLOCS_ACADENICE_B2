@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Borne de commande Wacdo">
+  <title>Wacdo - Accueil</title>
+  <link rel="stylesheet" href="../CSS/pages/index.css">
+  <script type="module" src="../JS/accueil.js"></script>
+</head>
+<body>
+  <main class="welcome-shell" aria-labelledby="welcome-title">
+    <section class="choice-panel">
+      <h1 id="welcome-title">Bonjour,</h1>
+      <p>Souhaitez-vous consommer votre menu sur place ou préférez-vous l'emporter ?</p>
+
+      <div class="order-type-grid" aria-label="Choix du mode de commande">
+        <button class="order-type-card" type="button" data-order-type="surPlace">
+          <img src="../Json_donnees/wacdo/images/illustration-sur-place.png" alt="">
+          <span>Sur place</span>
+        </button>
+        <button class="order-type-card" type="button" data-order-type="aEmporter">
+          <img src="../Json_donnees/wacdo/images/illustration-a-emporter.png" alt="">
+          <span>A emporter</span>
+        </button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

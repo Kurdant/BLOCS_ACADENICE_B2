@@ -1,0 +1,82 @@
+/* =========================================================
+   style.css — Styles globaux : reset minimal, variables CSS,
+               typographie, couleurs
+   Wacdo Back-office — Bloc 2
+   ========================================================= */
+
+/* --- Reset minimal --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- Variables CSS --- */
+:root {
+    /* Couleurs */
+    --color-primary:    #c0392b;
+    --color-primary-dk: #962d22;
+    --color-bg:         #f4f4f4;
+    --color-surface:    #ffffff;
+    --color-border:     #dddddd;
+    --color-text:       #222222;
+    --color-text-muted: #666666;
+    --color-success:    #27ae60;
+    --color-warning:    #e67e22;
+    --color-danger:     #c0392b;
+    --color-info:       #2980b9;
+
+    /* Espacements */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+
+    /* Typographie */
+    --font-family:     'Segoe UI', Arial, sans-serif;
+    --font-size-base:  15px;
+    --font-size-sm:    13px;
+    --font-size-lg:    18px;
+    --line-height:     1.5;
+
+    /* Bordures */
+    --radius:    4px;
+    --radius-lg: 8px;
+}
+
+/* --- Base --- */
+html {
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    line-height: var(--line-height);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+}
+
+body {
+    min-height: 100vh;
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+h1, h2, h3, h4 {
+    line-height: 1.2;
+    font-weight: 600;
+}

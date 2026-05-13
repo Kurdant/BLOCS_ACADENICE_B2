@@ -1,0 +1,113 @@
+/* =========================================================
+   layout.css — Structure du back-office : header, sidebar nav,
+                contenu principal, footer
+   Wacdo Back-office — Bloc 2
+   ========================================================= */
+
+/* --- Grille principale --- */
+.site-wrapper {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 220px 1fr;
+    grid-template-areas:
+        "header  header"
+        "sidebar main"
+        "footer  footer";
+    min-height: 100vh;
+}
+
+/* --- Header --- */
+.site-header {
+    grid-area: header;
+    background-color: var(--color-primary);
+    color: #fff;
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.site-header h1 {
+    font-size: 1.4rem;
+    letter-spacing: 0.5px;
+}
+
+.site-header .header-user {
+    font-size: var(--font-size-sm);
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.site-header .header-user a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* --- Sidebar nav --- */
+.site-sidebar {
+    grid-area: sidebar;
+    background-color: #2c2c2c;
+    color: #ccc;
+    padding: var(--space-lg) 0;
+}
+
+.site-sidebar nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.site-sidebar nav a {
+    display: block;
+    padding: var(--space-sm) var(--space-lg);
+    color: #ccc;
+    font-size: var(--font-size-sm);
+    transition: background 0.15s, color 0.15s;
+}
+
+.site-sidebar nav a:hover,
+.site-sidebar nav a.active {
+    background-color: var(--color-primary);
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav-section {
+    margin-top: var(--space-lg);
+    padding: 0 var(--space-lg) var(--space-xs);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #888;
+}
+
+.nav-section:first-child {
+    margin-top: 0;
+}
+
+/* --- Contenu principal --- */
+.site-main {
+    grid-area: main;
+    padding: var(--space-xl);
+    overflow-y: auto;
+}
+
+.page-title {
+    margin-bottom: var(--space-lg);
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--space-sm);
+}
+
+/* --- Footer --- */
+.site-footer {
+    grid-area: footer;
+    background-color: #2c2c2c;
+    color: #888;
+    text-align: center;
+    padding: var(--space-sm);
+    font-size: var(--font-size-sm);
+}
