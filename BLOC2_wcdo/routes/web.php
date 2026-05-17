@@ -9,6 +9,10 @@ $router->get('/login',   'App\Controllers\AuthController::showLogin');
 $router->post('/login',  'App\Controllers\AuthController::login');
 $router->post('/logout', 'App\Controllers\AuthController::logout');
 
+// Profil personnel
+$router->get('/mon-compte/mot-de-passe',  'App\Controllers\UtilisateurController::editPassword');
+$router->post('/mon-compte/mot-de-passe', 'App\Controllers\UtilisateurController::updatePassword');
+
 // Tableau de bord
 $router->get('/',          'App\Controllers\DashboardController::index');
 $router->get('/dashboard', 'App\Controllers\DashboardController::index');

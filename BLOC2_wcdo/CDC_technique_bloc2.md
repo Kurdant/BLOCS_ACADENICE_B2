@@ -369,6 +369,43 @@ La gestion des fichiers image est centralisée dans `app/Services/UploadService.
 
 Les vues sont des fichiers `.php` dont le rôle se limite à l'affichage : elles reçoivent des variables du contrôleur et produisent du HTML. Elles ne contiennent aucune requête SQL, aucune logique métier et aucun appel de service. Toutes les données affichées sont échappées avec `htmlspecialchars`. Les fichiers CSS et JS sont des fichiers statiques purs, sans PHP. Ils sont liés dans `layout.php` via les balises `<link>` et `<script>`.
 
+### 4.4.2 Pages de l'interface graphique
+
+Le back-office comprend 18 pages accessibles selon les rôles définis en section 4.5.
+
+**Authentification (public)**
+- Page de connexion (identifiant + mot de passe)
+
+**Tableau de bord (tous rôles)**
+- Dashboard — accueil après connexion
+
+**Gestion des utilisateurs (Administration uniquement)**
+- Liste des utilisateurs
+- Formulaire de création d'un utilisateur
+- Formulaire d'édition d'un utilisateur
+
+**Gestion du catalogue (Administration uniquement)**
+- Liste des catégories
+- Formulaire de création d'une catégorie
+- Formulaire d'édition d'une catégorie
+- Liste des produits
+- Formulaire de création d'un produit
+- Formulaire d'édition d'un produit
+- Liste des menus
+- Formulaire de création d'un menu
+- Formulaire d'édition d'un menu
+- Page de gestion des sections et options d'un menu
+
+**Gestion des commandes (Administration, Preparation, Accueil selon filtre)**
+- Liste des commandes — filtrée par rôle : Administration voit toutes les commandes, Preparation voit uniquement les commandes au statut `a_preparer`, Accueil voit uniquement les commandes au statut `preparee`
+- Formulaire de saisie manuelle d'une commande
+- Détail d'une commande
+
+**Profil personnel (tous rôles)**
+- Formulaire de changement de mot de passe personnel
+
+La navigation latérale (`partials/sidebar.php`) filtre les liens affichés selon le rôle de l'utilisateur connecté. Un compte `Preparation` ou `Accueil` ne voit pas les liens vers la gestion des utilisateurs ni du catalogue.
+
 ### 4.5 Routes back-office figées
 
 Les routes internes du back-office sont figées ci-dessous. Toutes les routes back-office sont protégées par session sauf `GET /login` et `POST /login`. Les contrôles d'autorisation par rôle sont rappelés dans la colonne **Rôles autorisés**.
@@ -435,6 +472,15 @@ Les routes internes du back-office sont figées ci-dessous. Toutes les routes ba
 | GET | `/commandes/{id}` | `CommandeController::show` | Administration, Preparation, Accueil |
 | POST | `/commandes/{id}/preparee` | `CommandeController::marquerPreparee` | Administration, Preparation |
 | POST | `/commandes/{id}/livree` | `CommandeController::marquerLivree` | Administration, Accueil |
+
+**Profil personnel :**
+
+| Méthode | Route | Contrôleur::action | Rôles autorisés |
+|---|---|---|---|
+| GET | `/mon-compte/mot-de-passe` | `UtilisateurController::editPassword` | Tous authentifiés |
+| POST | `/mon-compte/mot-de-passe` | `UtilisateurController::updatePassword` | Tous authentifiés |
+
+Logique : l'utilisateur saisit son mot de passe actuel (vérifié par `password_verify`), le nouveau mot de passe et sa confirmation. Le mot de passe actuel est obligatoire — un administrateur ne peut pas changer le mot de passe d'un autre compte via cette route.
 
 **Endpoints API externes (séparés du back-office, authentification par `X-API-Key`) :**
 
@@ -913,7 +959,6 @@ Codes principaux :
 | `403` | Clé reconnue mais non autorisée ou désactivée |
 | `404` | Endpoint ou ressource demandée introuvable |
 | `405` | Méthode HTTP non autorisée |
-| `409` | Conflit métier, par exemple doublon ou commande déjà reçue |
 | `413` | Corps de requête trop volumineux |
 | `415` | Type de contenu non supporté |
 | `422` | Données syntaxiquement valides mais refusées par les règles métier |

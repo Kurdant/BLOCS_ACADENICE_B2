@@ -1,0 +1,72 @@
+<mxfile host="app.diagrams.net" modified="2026-05-15T00:00:00.000Z" agent="drawio-agent" version="24.2.5" etag="MCD_Wacdo_Bloc3" type="device">
+  <diagram id="MCD_Wacdo_Bloc3" name="MCD Wacdo Bloc 3">
+    <mxGraphModel dx="1500" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="950" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="&lt;b&gt;MCD Wacdo Bloc 3 - Collaborateurs, restaurants, fonctions et affectations&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=20;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="170" y="25" width="1160" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="collaborateur" value="&lt;b&gt;COLLABORATEUR&lt;/b&gt;&lt;hr&gt;&lt;u&gt;id_collaborateur&lt;/u&gt;&lt;br&gt;nom&lt;br&gt;prenom&lt;br&gt;email&lt;br&gt;telephone&lt;br&gt;date_premiere_embauche&lt;br&gt;administrateur&lt;br&gt;mot_de_passe_hash" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#01579b;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontFamily=Helvetica;fontSize=12;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="80" y="270" width="260" height="185" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="affectation" value="&lt;b&gt;AFFECTATION&lt;/b&gt;&lt;hr&gt;&lt;u&gt;id_affectation&lt;/u&gt;&lt;br&gt;date_debut&lt;br&gt;date_fin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ff8f00;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontFamily=Helvetica;fontSize=12;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="610" y="315" width="240" height="115" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="restaurant" value="&lt;b&gt;RESTAURANT&lt;/b&gt;&lt;hr&gt;&lt;u&gt;id_restaurant&lt;/u&gt;&lt;br&gt;nom&lt;br&gt;adresse&lt;br&gt;code_postal&lt;br&gt;ville" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontFamily=Helvetica;fontSize=12;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="170" width="250" height="135" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="fonction" value="&lt;b&gt;FONCTION&lt;/b&gt;&lt;hr&gt;&lt;u&gt;id_fonction&lt;/u&gt;&lt;br&gt;intitule_poste" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#6a1b9a;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontFamily=Helvetica;fontSize=12;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="505" width="250" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="edge_collaborateur_affectation" value="concerne" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#263238;" edge="1" parent="1" source="collaborateur" target="affectation">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="card_collaborateur" value="0,N" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=12;fontFamily=Helvetica;fontColor=#263238;align=center;" vertex="1" parent="1">
+          <mxGeometry x="355" y="340" width="45" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="card_affectation_collaborateur" value="1,1" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=12;fontFamily=Helvetica;fontColor=#263238;align=center;" vertex="1" parent="1">
+          <mxGeometry x="555" y="340" width="45" height="22" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="edge_restaurant_affectation" value="accueille" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#263238;" edge="1" parent="1" source="restaurant" target="affectation">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="card_restaurant" value="0,N" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=12;fontFamily=Helvetica;fontColor=#263238;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="230" width="45" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="card_affectation_restaurant" value="1,1" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=12;fontFamily=Helvetica;fontColor=#263238;align=center;" vertex="1" parent="1">
+          <mxGeometry x="860" y="310" width="45" height="22" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="edge_fonction_affectation" value="qualifie" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;fontSize=11;fontColor=#263238;" edge="1" parent="1" source="fonction" target="affectation">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="card_fonction" value="0,N" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=12;fontFamily=Helvetica;fontColor=#263238;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="545" width="45" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="card_affectation_fonction" value="1,1" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=12;fontFamily=Helvetica;fontColor=#263238;align=center;" vertex="1" parent="1">
+          <mxGeometry x="860" y="420" width="45" height="22" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="note_active" value="&lt;b&gt;Regle affectation en cours&lt;/b&gt;&lt;br&gt;date_debut &amp;lt;= date du jour ET (date_fin vide OU date_fin &amp;gt;= date du jour)." style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=top;align=left;spacingTop=8;spacingLeft=8;fillColor=#fff9c4;strokeColor=#d4a300;fontFamily=Helvetica;fontSize=12;fontColor=#424242;" vertex="1" parent="1">
+          <mxGeometry x="80" y="660" width="610" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="note_non_affecte" value="&lt;b&gt;Collaborateur non affecte&lt;/b&gt;&lt;br&gt;Aucun poste actif a la date de consultation." style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=top;align=left;spacingTop=8;spacingLeft=8;fillColor=#fff9c4;strokeColor=#d4a300;fontFamily=Helvetica;fontSize=12;fontColor=#424242;" vertex="1" parent="1">
+          <mxGeometry x="760" y="660" width="420" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="footer" value="Aucun statut d'affectation n'est stocke : active, future et terminee sont des etats deduits des dates." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="825" width="1100" height="30" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

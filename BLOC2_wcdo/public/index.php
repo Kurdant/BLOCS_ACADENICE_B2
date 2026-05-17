@@ -57,15 +57,43 @@ spl_autoload_register(static function (string $class): void {
 // -----------------------------------------------------------------------------
 // Session PHP sécurisée
 // -----------------------------------------------------------------------------
+$isProduction = strtolower((string) getenv('APP_ENV')) === 'prod';
+
+ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path'     => '/',
     'domain'   => '',
-    'secure'   => false,
+    'secure'   => $isProduction,
     'httponly' => true,
     'samesite' => 'Lax',
 ]);
 session_start();
+
+$sessionTimeout = 1800;
+$lastActivity = $_SESSION['last_activity'] ?? null;
+
+if (is_numeric($lastActivity) && time() - (int) $lastActivity > $sessionTimeout) {
+    $_SESSION = [];
+
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, [
+            'path'     => $params['path'],
+            'domain'   => $params['domain'],
+            'secure'   => $params['secure'],
+            'httponly' => $params['httponly'],
+            'samesite' => $params['samesite'] ?? 'Lax',
+        ]);
+    }
+
+    session_destroy();
+    session_start();
+}
+
+$_SESSION['last_activity'] = time();
 
 // -----------------------------------------------------------------------------
 // Gestion globale des erreurs

@@ -213,7 +213,7 @@ Cette section définit le contrat public des modules utilisés par le front.
 Règle générale d’orchestration :
 
 - `commande.js` est le seul module autorisé à coordonner les autres modules de la page commande ;
-- les autres modules ne se pilotent pas entre eux, sauf `modal.js` qui peut interroger `catalog-service.js` pour charger les choix nécessaires à une configuration ;
+- les autres modules ne se pilotent pas entre eux, sauf `modal.js` qui peut interroger `catalog-service.js` pour charger les choix nécessaires à une configuration et chevalet.js qui envoie le numéro de chevalet.
 - chaque module reçoit des données, produit un résultat, puis laisse `commande.js` décider de la suite du parcours.
 
 Chaque module est décrit par :

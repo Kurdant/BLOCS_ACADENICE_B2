@@ -13,6 +13,7 @@ abstract class BaseRepository
 {
     protected PDO $pdo;
 
+    // Injecte la connexion PDO ou utilise le singleton partagé
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo ?? Database::connection();

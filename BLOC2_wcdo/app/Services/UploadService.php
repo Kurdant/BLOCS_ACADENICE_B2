@@ -39,6 +39,11 @@ final class UploadService
             throw new \RuntimeException('Aucun fichier reçu ou erreur d\'upload (code : ' . ($file['error'] ?? '?') . ').');
         }
 
+        // Valider le sous-dossier : caractères alphanumériques et tirets uniquement
+        if (!preg_match('/\A[a-z0-9_-]+\z/i', $sousDossier)) {
+            throw new \RuntimeException('Sous-dossier de destination invalide.');
+        }
+
         // 2. Vérifier la taille
         if ($file['size'] > self::MAX_SIZE_BYTES) {
             throw new \RuntimeException('Image trop lourde. Taille maximale : 2 Mo.');
@@ -83,6 +88,11 @@ final class UploadService
     public function supprimer(string $nomStocke): void
     {
         if ($nomStocke === '') {
+            return;
+        }
+
+        // Garde contre path traversal : le nom stocké ne doit pas contenir '..'
+        if (str_contains($nomStocke, '..')) {
             return;
         }
 

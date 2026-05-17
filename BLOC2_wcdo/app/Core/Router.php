@@ -15,19 +15,23 @@ final class Router
         'POST' => [],
     ];
 
+    // Enregistre une route GET
     public function get(string $path, string $handler): void
     {
         $this->add('GET', $path, $handler);
     }
 
+    // Enregistre une route POST
     public function post(string $path, string $handler): void
     {
         $this->add('POST', $path, $handler);
     }
 
+    // Compile la route en regex et stocke le handler avec ses noms de paramètres
     private function add(string $method, string $path, string $handler): void
     {
         $params  = [];
+        // Remplace {param} par un groupe capturant et mémorise le nom du paramètre
         $pattern = preg_replace_callback(
             '/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/',
             static function (array $m) use (&$params): string {
@@ -45,6 +49,7 @@ final class Router
         ];
     }
 
+    // Cherche la route correspondante et appelle le handler, ou renvoie 404/405
     public function dispatch(string $method, string $uri): void
     {
         $method = strtoupper($method);
@@ -53,6 +58,7 @@ final class Router
             $uri = '/';
         }
 
+        // Méthode HTTP non enregistrée du tout : vérifier si l'URI existe pour un autre verbe
         if (!isset($this->routes[$method])) {
             foreach ($this->routes as $routes) {
                 foreach ($routes as $route) {
@@ -66,9 +72,10 @@ final class Router
             return;
         }
 
+        // Phase 1 : tentative de correspondance sur le bon verbe
         foreach ($this->routes[$method] as $route) {
             if (preg_match($route['pattern'], $uri, $matches)) {
-                array_shift($matches);
+                array_shift($matches); // supprime le match complet (élément 0)
                 $args = [];
                 foreach ($route['params'] as $i => $name) {
                     $args[$name] = $matches[$i] ?? null;
@@ -78,6 +85,7 @@ final class Router
             }
         }
 
+        // Phase 2 : l'URI existe sur un autre verbe → 405
         foreach ($this->routes as $m => $routes) {
             if ($m === $method) {
                 continue;
@@ -94,6 +102,8 @@ final class Router
     }
 
     /**
+     * Instancie le contrôleur et appelle la méthode indiquée (format "Classe::methode").
+     *
      * @param array<string, string|null> $args
      */
     private function invoke(string $handler, array $args): void
@@ -112,6 +122,7 @@ final class Router
         $controller->{$action}($args);
     }
 
+    // Renvoie une réponse 404 minimale
     private function notFound(): void
     {
         http_response_code(404);
@@ -119,6 +130,7 @@ final class Router
         echo '<h1>404 — Page introuvable</h1>';
     }
 
+    // Renvoie une réponse 405 minimale
     private function methodNotAllowed(): void
     {
         http_response_code(405);

@@ -25,7 +25,11 @@ $extraCss = $extraCss ?? [];
         <?php if (!empty($_SESSION['user'])): ?>
         <div class="header-user">
             <?= htmlspecialchars($_SESSION['user']['identifiant'] ?? '', ENT_QUOTES, 'UTF-8') ?>
-            <a href="/logout">Déconnexion</a>
+            <form method="POST" action="/logout" style="display:inline">
+                <input type="hidden" name="_csrf"
+                       value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                <button type="submit" class="btn btn-secondary btn-sm">Déconnexion</button>
+            </form>
         </div>
         <?php endif; ?>
     </header>
@@ -37,12 +41,18 @@ $extraCss = $extraCss ?? [];
                 <li><a href="/commandes">Liste des commandes</a></li>
 
                 <li class="nav-section">Catalogue</li>
+                <?php if (($_SESSION['user']['role'] ?? '') === 'Administration'): ?>
                 <li><a href="/produits">Produits</a></li>
                 <li><a href="/categories">Catégories</a></li>
+                <?php endif; ?>
 
                 <li class="nav-section">Gestion</li>
-                <li><a href="/employes">Employés</a></li>
-                <li><a href="/restaurants">Restaurants</a></li>
+                <?php if (($_SESSION['user']['role'] ?? '') === 'Administration'): ?>
+                <li><a href="/utilisateurs">Utilisateurs</a></li>
+                <?php endif; ?>
+
+                <li class="nav-section">Mon compte</li>
+                <li><a href="/mon-compte/mot-de-passe">Changer mon mot de passe</a></li>
             </ul>
         </nav>
     </aside>
