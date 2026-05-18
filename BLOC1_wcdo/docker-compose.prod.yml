@@ -1,0 +1,18 @@
+  services:
+    web:
+      build: .
+      container_name: wacdo_b1_web
+      restart: unless-stopped
+      networks:
+        - admin_proxy
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=admin_proxy"
+        - "traefik.http.routers.wacdo-b1.rule=Host(`wacdo-b1.a3n.fr`)"
+        - "traefik.http.routers.wacdo-b1.entrypoints=websecure"
+        - "traefik.http.routers.wacdo-b1.tls.certresolver=letsencrypt"
+        - "traefik.http.services.wacdo-b1.loadbalancer.server.port=80"
+
+  networks:
+    admin_proxy:
+      external: true

@@ -1,66 +1,65 @@
-services:
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    container_name: wacdo_b3_app
-    working_dir: /var/www/html
-    volumes:
-      # .env monté depuis le serveur (APP_KEY stable entre redémarrages).
-      - ./.env:/var/www/html/.env:ro
-      # storage en volume nommé pour persister logs, sessions, cache vues.
-      - storage_data:/var/www/html/storage
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - wacdo_b3_internal
+  services:
+    app:
+      build: .
+      container_name: wacdo_b3_app
+      env_file: .env
+      volumes:
+        - storage_data:/var/www/html/storage
+      depends_on:
+        db:
+          condition: service_healthy
+      restart: unless-stopped
+      networks:
+        - internal
 
-  web:
-    image: nginx:1.27-alpine
-    container_name: wacdo_b3_web
-    volumes:
-      - ./public:/var/www/html/public:ro
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - app
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=admin_proxy"
-      - "traefik.http.routers.wacdo-b3.rule=Host(`wacdo-b3.a3n.fr`)"
-      - "traefik.http.routers.wacdo-b3.entrypoints=websecure"
-      - "traefik.http.services.wacdo-b3.loadbalancer.server.port=80"
-    networks:
-      - admin_proxy
-      - wacdo_b3_internal
+    web:
+      image: nginx:1.27-alpine
+      container_name: wacdo_b3_web
+      volumes:
+        - ./public:/var/www/html/public:ro
+        - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      depends_on:
+        - app
+      restart: unless-stopped
+      networks:
+        - admin_proxy
+        - internal
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=admin_proxy"
+        - "traefik.http.routers.wacdo-b3.rule=Host(`wacdo-b3.a3n.fr`)"
+        - "traefik.http.routers.wacdo-b3.entrypoints=websecure"
+        - "traefik.http.routers.wacdo-b3.tls.certresolver=letsencrypt"
+        - "traefik.http.services.wacdo-b3.loadbalancer.server.port=80"
 
-  db:
-    image: postgres:16-alpine
-    container_name: wacdo_b3_db
-    environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - pgdata_b3:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-    networks:
-      - wacdo_b3_internal
+    db:
+      image: postgres:16-alpine
+      container_name: wacdo_b3_db
+      environment:
+        POSTGRES_DB: ${DB_DATABASE}
+        POSTGRES_USER: ${DB_USERNAME}
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+      volumes:
+        - pgdata_b3:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+        interval: 5s
+        timeout: 5s
+        retries: 10
+      restart: unless-stopped
+      networks:
+        - internal
 
-volumes:
-  pgdata_b3:
-  storage_data:
-
-networks:
-  admin_proxy:
-    external: true
-  wacdo_b3_internal:
-    name: wacdo_b3_internal
+  volumes:
+    pgdata_b3:
+    storage_data:
+  
+  networks:
+    admin_proxy:
+      external: true
+    internal:
+      name: wacdo_b3_internal
+      ipam:
+        config:
+          - subnet: 172.51.0.0/24

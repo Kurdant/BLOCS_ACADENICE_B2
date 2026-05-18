@@ -7,22 +7,17 @@
       && rm -rf /var/lib/apt/lists/*
 
   RUN a2enmod rewrite headers
-
+  
   COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
   WORKDIR /var/www/html
-  
-  # Code applicatif (sources copiées dans l'image en prod)
-  COPY app/ /var/www/html/app/
-  COPY public/ /var/www/html/public/
-  COPY routes/ /var/www/html/routes/
-  COPY config/ /var/www/html/config/
-  COPY database/ /var/www/html/database/
+  COPY app/ ./app/
+  COPY public/ ./public/
+  COPY routes/ ./routes/
+  COPY config/ ./config/
+  COPY database/ ./database/
 
-  RUN mkdir -p /var/www/html/storage/uploads \
-      && chown -R www-data:www-data /var/www/html
+  RUN mkdir -p storage/uploads && chown -R www-data:www-data /var/www/html
 
   EXPOSE 80
-
   CMD ["apache2-foreground"]
-

@@ -38,7 +38,7 @@
       restart: unless-stopped
       networks:
         - internal
-  
+
   volumes:
     db_data:
     uploads_data:
@@ -48,3 +48,6 @@
       external: true
     internal:
       name: wacdo_b2_internal
+      ipam:                      
+        config:
+          - subnet: 172.50.0.0/24
