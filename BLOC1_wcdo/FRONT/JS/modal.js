@@ -1,11 +1,23 @@
+// ====================================================
+// MODAL.JS — Gestion des pop-ups de configuration produit
+// Rôle : Afficher les fenêtres modales quand le client clique sur :
+//        - Un MENU (4 étapes : type / accompagnement / boisson / sauce)
+//        - Une BOISSON (choix de la taille + quantité)
+//        Retourne la sélection finale à commande.js via une Promise.
+// ====================================================
+
 import { SUPPLEMENT_GRANDE_CENTIMES } from "./cart.js";
 import { getItemsByGroup } from "./catalog-service.js";
 
-let modalRoot = null;
-let activeResolver = null;
-let menuEscapeHandler = null;
-let isMenuRendering = false;
+// Variables internes de gestion de l'état de la modale
+let modalRoot = null;         // Élément HTML racine de la modale (#selection-modal)
+let activeResolver = null;    // Fonction resolve() de la Promise en attente
+let menuEscapeHandler = null; // Référence au handler Escape (pour pouvoir le supprimer)
+let isMenuRendering = false;  // Verrou : empêche les rendus multiples simultanés
 
+// Filtre les accompagnements disponibles selon le type de menu choisi :
+// - bestOf    → frites/salade en taille normale (ids : 36, 38, 60)
+// - maxiBestOf → frites/salade en grande taille (ids : 37, 39, 60)
 function filterAccompanimentsByMenu(typeMenu) {
   const frites = getItemsByGroup("frites");
   const salades = getItemsByGroup("salades");
@@ -24,14 +36,19 @@ function filterAccompanimentsByMenu(typeMenu) {
   return items;
 }
 
+// Initialise la modale en mémorisant l'élément HTML racine (appelé une seule fois au démarrage)
 export function initModal(rootElement) {
   modalRoot = rootElement;
 }
 
+// Ouvre la modale de configuration de menu (4 étapes).
+// Retourne une Promise qui se résout avec la sélection complète, ou null si annulé.
 export function openMenuModal(item) {
   ensureModalRoot();
   const drinks = getItemsByGroup("boissons");
   const sauces = getItemsByGroup("sauces");
+
+  // Objet "brouillon" qui accumule les choix du client au fil des 4 étapes
   const draft = {
     itemId: item.id,
     itemType: "menu",
@@ -55,6 +72,11 @@ export function openMenuModal(item) {
   });
 }
 
+// Affiche une étape du menu modal (1 à 4) et gère les boutons Retour/Suivant/Fermer.
+// Étape 1 : choix du type (Best Of / Maxi Best Of)
+// Étape 2 : choix de l'accompagnement (filtré selon le type)
+// Étape 3 : choix de la boisson (carousel)
+// Étape 4 : choix de la sauce (optionnelle, carousel)
 function showMenuStep(step, ctx) {
   if (isMenuRendering) return;
   isMenuRendering = true;
@@ -70,6 +92,7 @@ function showMenuStep(step, ctx) {
   }
   modalRoot.innerHTML = buildMenuStepHtml(step, ctx);
 
+  // Ferme la modale et libère l'élément HTML
   function cleanupMenu() {
     isMenuRendering = false;
     if (menuEscapeHandler) {
@@ -81,6 +104,7 @@ function showMenuStep(step, ctx) {
     document.body.style.overflow = "";
   }
 
+  // Ferme la modale sans retourner de sélection (clic sur croix ou Escape)
   function closeMenuModal() {
     const resolve = activeResolver;
     activeResolver = null;
@@ -88,6 +112,7 @@ function showMenuStep(step, ctx) {
     resolve(null);
   }
 
+  // Calcule le prix final du menu et résout la Promise avec la sélection complète
   function finishMenu() {
     draft.prixCalculeCentimes =
       ctx.item.prixCentimes + (draft.typeMenu === "maxiBestOf" ? SUPPLEMENT_GRANDE_CENTIMES : 0);
@@ -160,6 +185,7 @@ function showMenuStep(step, ctx) {
   isMenuRendering = false;
 }
 
+// Génère le HTML complet d'une étape du menu modal (en-tête, corps, pied de page)
 function buildMenuStepHtml(step, ctx) {
   const { draft, accompaniments, drinks, sauces } = ctx;
 
@@ -224,6 +250,7 @@ function buildMenuStepHtml(step, ctx) {
   `;
 }
 
+// Détermine si le bouton "Suivant" doit être désactivé selon l'étape et les choix faits
 function getNextDisabled(step, draft) {
   if (step === 1 && !draft.typeMenu) return "disabled";
   if (step === 2 && !draft.accompagnementId) return "disabled";
@@ -231,6 +258,7 @@ function getNextDisabled(step, draft) {
   return "";
 }
 
+// Génère le HTML du corps de l'étape 1 : 2 cartes à cliquer (Best Of / Maxi Best Of)
 function renderStep1Body(draft) {
   const cards = [
     {
@@ -257,6 +285,7 @@ function renderStep1Body(draft) {
   `;
 }
 
+// Génère le HTML du corps de l'étape 2 : grille des accompagnements disponibles
 function renderStep2Body(draft, accompaniments) {
   return `
     <div class="step-choices-grid step-choices-grid--auto" data-choice-group="accompagnement">
@@ -271,6 +300,7 @@ function renderStep2Body(draft, accompaniments) {
   `;
 }
 
+// Génère le HTML d'un carousel défilant (utilisé aux étapes 3 et 4 pour boisson/sauce)
 function renderCarouselBody(group, items, selectedId) {
   const cardsHtml = items.map((item) => `
     <button class="carousel-item ${selectedId === item.id ? "is-selected" : ""}" type="button"
@@ -291,6 +321,8 @@ function renderCarouselBody(group, items, selectedId) {
   `;
 }
 
+// Attache la gestion des clics sur une grille de choix (cartes cliquables).
+// Met en surbrillance la carte sélectionnée et appelle le callback onSelect.
 function setupGridClick(group, onSelect) {
   const grid = modalRoot.querySelector(`[data-choice-group="${group}"]`);
   if (!grid) return;
@@ -304,6 +336,8 @@ function setupGridClick(group, onSelect) {
   });
 }
 
+// Attache la gestion des clics ET du défilement sur un carousel (boisson ou sauce).
+// Gestion spéciale sauce : cliquer une sauce déjà sélectionnée la désélectionne.
 function setupCarouselInteraction(group, draft, onSelect) {
   const wrapper = modalRoot.querySelector("[data-carousel]");
   if (!wrapper) return;
@@ -366,6 +400,8 @@ function setupCarouselInteraction(group, draft, onSelect) {
   });
 }
 
+// Ouvre la modale de choix de boisson (taille 30cl/50cl + quantité).
+// Retourne une Promise qui se résout avec la sélection, ou null si annulé.
 export function openDrinkModal(item) {
   ensureModalRoot();
   const draft = {
@@ -392,6 +428,7 @@ export function openDrinkModal(item) {
   const sizeCards = Array.from(modalRoot.querySelectorAll(".drink-size-card"));
   const errorEl = modalRoot.querySelector(".modal-error");
 
+  // Ferme la modale boisson et retourne le résultat (null si annulé, objet draft si confirmé)
   function closeDrink(result) {
     document.removeEventListener("keydown", handleEscape);
     modalRoot.innerHTML = "";
@@ -450,6 +487,7 @@ export function openDrinkModal(item) {
   });
 }
 
+// Génère le HTML de la modale boisson (2 cartes taille + sélecteur de quantité)
 function buildDrinkModalHtml(item, draft) {
   return `
     <div class="modal-backdrop"></div>

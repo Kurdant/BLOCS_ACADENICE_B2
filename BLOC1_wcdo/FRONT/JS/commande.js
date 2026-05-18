@@ -1,8 +1,18 @@
+// ====================================================
+// COMMANDE.JS — Chef d'orchestre de la page de commande (commande.html)
+// Rôle : Gère tout ce qui se passe sur la page principale :
+//        - Afficher les catégories et les produits du catalogue
+//        - Gérer les clics sur les produits (ouvrir les modales si besoin)
+//        - Mettre à jour et afficher le panier en temps réel
+//        - Valider et rediriger vers chevalet.html
+// ====================================================
+
 import { addSelectionToCart, getCart, isCartEmpty, removeLineFromCart, setCart } from "./cart.js";
 import { findItemByKey, formatGroupLabel, formatPrice, loadCatalog } from "./catalog-service.js";
 import { initModal, openDrinkModal, openMenuModal } from "./modal.js";
 import { clearOrderFlow, getCommandeNumber, getOrderType, getStoredCart, saveCart } from "./storage.js";
 
+// Références cachées vers tous les éléments HTML de la page (récupérées une seule fois au chargement)
 const elements = {
   orderMode: document.querySelector("#order-mode"),
   orderNumber: document.querySelector(".cart-order-number"),
@@ -23,12 +33,14 @@ const elements = {
   modalRoot: document.querySelector("#selection-modal")
 };
 
+// Catégorie active (affichée dans la grille de produits), initialisée à la première catégorie
 let catalog = null;
 let activeCategory = null;
-const SCROLL_AMOUNT = 400;
+const SCROLL_AMOUNT = 400; // Pixels de défilement par clic sur les flèches du carousel
 
 document.addEventListener("DOMContentLoaded", init);
 
+// Point d'entrée : initialise la modale, restaure le contexte commande, charge le catalogue
 function init() {
   initModal(elements.modalRoot);
   if (!restoreOrderContext()) {
@@ -42,6 +54,8 @@ function init() {
   loadAndRenderCatalog();
 }
 
+// Vérifie qu'il y a bien un type de commande en cours, affiche le mode et le numéro.
+// Si pas de type de commande (accès direct à la page), redirige vers index.html.
 function restoreOrderContext() {
   const orderType = getOrderType();
   if (!orderType) {
@@ -54,6 +68,7 @@ function restoreOrderContext() {
   return true;
 }
 
+// Attache tous les écouteurs d'événements de la page (clics, clavier, etc.)
 function bindEvents() {
   elements.retryCatalog.addEventListener("click", loadAndRenderCatalog);
   elements.categoriesList.addEventListener("click", handleCategoryClick);
@@ -70,6 +85,8 @@ function bindEvents() {
   });
 }
 
+// Charge le catalogue depuis les JSON, puis affiche les catégories et les produits.
+// En cas d'erreur (fichier absent, réseau coupé), affiche un message et un bouton "Réessayer".
 async function loadAndRenderCatalog() {
   setCatalogLoadingState();
   try {
@@ -84,6 +101,7 @@ async function loadAndRenderCatalog() {
   }
 }
 
+// Met la page en état "chargement" : vide les listes, affiche le message d'attente
 function setCatalogLoadingState() {
   elements.retryCatalog.hidden = true;
   elements.catalogStatus.textContent = "Chargement du catalogue...";
@@ -91,6 +109,8 @@ function setCatalogLoadingState() {
   elements.productsGrid.innerHTML = "";
 }
 
+// Supprime du panier les lignes dont les produits n'existent plus dans le catalogue chargé.
+// Cas rare mais possible si le catalogue change entre deux sessions.
 function purgeInvalidCartLines() {
   const cart = getCart();
   const validLines = cart.lignes.filter(isCartLineCatalogValid);
@@ -101,6 +121,8 @@ function purgeInvalidCartLines() {
   saveCart(getCart());
 }
 
+// Vérifie qu'une ligne du panier correspond toujours à des produits existants dans le catalogue.
+// Pour les menus, vérifie aussi que l'accompagnement, la boisson et la sauce existent encore.
 function isCartLineCatalogValid(line) {
   if (!findItemByKey(line.itemKey)) {
     return false;
@@ -118,6 +140,8 @@ function isCartLineCatalogValid(line) {
   return !config.sauceKey || Boolean(findItemByKey(config.sauceKey));
 }
 
+// Génère le HTML des boutons de catégorie et les injecte dans le DOM.
+// La catégorie active est mise en surbrillance (classe is-active).
 function renderCategories() {
   elements.categoriesList.innerHTML = catalog.categories.map((category) => `
     <button class="category-button ${category.title === activeCategory ? "is-active" : ""}" type="button" data-category="${category.title}" aria-pressed="${category.title === activeCategory}">
@@ -127,6 +151,8 @@ function renderCategories() {
   `).join("");
 }
 
+// Affiche les produits de la catégorie active dans la grille.
+// Met à jour le titre et le sous-titre descriptif de la catégorie.
 function renderProducts() {
   const category = catalog.categories.find((candidate) => candidate.title === activeCategory);
   const items = category?.items || [];
@@ -160,6 +186,8 @@ function renderProducts() {
   `).join("");
 }
 
+// Affiche un message d'erreur quand le catalogue ne peut pas être chargé.
+// Désactive le bouton Payer et affiche le bouton "Réessayer".
 function renderCatalogError(message) {
   clearOrderFlow();
   elements.retryCatalog.hidden = false;
@@ -168,6 +196,7 @@ function renderCatalogError(message) {
   elements.validateCart.disabled = true;
 }
 
+// Gestion du clic sur une catégorie : met à jour la catégorie active et recharge la grille
 function handleCategoryClick(event) {
   const button = event.target.closest(".category-button");
   if (!button) {
@@ -178,6 +207,7 @@ function handleCategoryClick(event) {
   renderProducts();
 }
 
+// Permet d'activer une carte produit avec Entrée ou Espace (accessibilité clavier)
 function handleProductKeydown(event) {
   if (!["Enter", " "].includes(event.key) || !event.target.classList.contains("product-card")) {
     return;
@@ -186,6 +216,7 @@ function handleProductKeydown(event) {
   event.target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 }
 
+// Gestion du clic sur un produit : ouvre la bonne modale ou ajoute directement au panier.
 async function handleProductClick(event) {
   const card = event.target.closest(".product-card[data-item-key]");
   if (!card) {
@@ -210,6 +241,10 @@ async function handleProductClick(event) {
   }
 }
 
+// Décide quelle action effectuer selon le type de produit cliqué :
+// - Menu    → ouvre la modale multi-étapes (type, accompagnement, boisson, sauce)
+// - Boisson → ouvre la modale de choix de taille
+// - Autre   → ajoute directement au panier (pas de configuration nécessaire)
 function buildSelection(item) {
   if (item.itemType === "menu") {
     return openMenuModal(item);
@@ -227,6 +262,7 @@ function buildSelection(item) {
   };
 }
 
+// Gestion du clic sur la poubelle d'une ligne du panier : retire la ligne et met à jour l'affichage
 function handleCartClick(event) {
   const button = event.target.closest(".remove-line");
   if (!button) {
@@ -237,6 +273,7 @@ function handleCartClick(event) {
   renderCart();
 }
 
+// Gestion du clic sur "Payer" : vérifie que le panier n'est pas vide, sauvegarde et redirige
 function handleCartValidation() {
   const cart = getCart();
   if (isCartEmpty(cart)) {
@@ -247,6 +284,7 @@ function handleCartValidation() {
   window.location.href = "chevalet.html";
 }
 
+// Gestion du clic sur "Abandon" : demande confirmation, puis efface tout et retourne à l'accueil
 function handleAbandon() {
   if (!window.confirm("Voulez-vous vraiment annuler votre commande ? Votre panier sera perdu.")) {
     return;
@@ -255,6 +293,7 @@ function handleAbandon() {
   window.location.href = "index.html";
 }
 
+// Met à jour l'affichage complet du panier (lignes, total, état du bouton Payer)
 function renderCart() {
   const cart = getCart();
   elements.cartError.textContent = "";
@@ -283,6 +322,7 @@ function renderCart() {
   `).join("");
 }
 
+// Génère le HTML des détails de configuration d'une ligne (taille boisson, type menu, etc.)
 function renderLineConfigurationItems(line) {
   if (!line.configuration) {
     return "";
@@ -307,6 +347,8 @@ function renderLineConfigurationItems(line) {
   return "";
 }
 
+// Sécurité : échappe les caractères spéciaux HTML pour éviter les injections XSS.
+// Ex: "<script>" devient "&lt;script&gt;" (s'affiche en texte, ne s'exécute pas)
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, (character) => ({
     "&": "&amp;",
